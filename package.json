@@ -1,0 +1,20 @@
+{
+  "name": "@keepzen/orm-for-sqlite3",
+  "version": "0.0.1",
+  "description": "ORM for Learn",
+  "main": "index.js",
+  "author": "Keep in Zen",
+  "license": "MIT",
+  "bin": {
+    "scheme-export": "./scheme-export.js"
+  },
+  "private": false,
+  "keywords": [
+    "ORM",
+    "SQLITE3"
+  ],
+  "devDependencies": {
+    "jest": "^26.1.0",
+    "sqlite3": "^5.0.0"
+  }
+}
