@@ -75,7 +75,7 @@ class Table {
       return sql;
     }
   }
-  static async find(fields = [], condtion = {}, order = []) {
+  static async find({ fields = [], condtion = {}, order = [] } = {}) {
     let whereCause = '';
     const entries = Object.entries(condtion);
     if (entries.length > 0) {
