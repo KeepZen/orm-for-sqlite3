@@ -71,19 +71,19 @@ class Table {
       return sql;
     }
   }
-  static async find({ fields = [], condtion = {}, order = [] } = {}) {
+  static async find({ select = [], where = {}, orderBy = [] } = {}) {
     let whereCause = '';
-    const entries = Object.entries(condtion);
+    const entries = Object.entries(where);
     if (entries.length > 0) {
       whereCause = `WHERE ` + entries.map(([key, value]) => {
         return `${key}=${JSON.stringify(value)}`
       }).join(" AND ")
     }
     let orderCause = '';
-    if (order.length > 0) {
-      orderCause = `ORDER BY ` + order.join(",");
+    if (orderBy.length > 0) {
+      orderCause = `ORDER BY ` + orderBy.join(",");
     }
-    const sql = `SELECT ${fields.join(",") || "*"} \n` +
+    const sql = `SELECT ${select.join(",") || "*"} \n` +
       `FROM ${this.name}\n` +
       `${whereCause} ${orderCause}`;
     if (_db) {
