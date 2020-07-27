@@ -48,6 +48,7 @@ async function createPromiseDB(dbPath, sqlScript = null) {
     commit: sqlitePromise.bind(null, db, 'run', "COMMIT"),
     rollback: sqlitePromise.bind(null, db, 'run', 'ROLLBACK'),
     runScript: sqlitePromsieRunScripte.bind(null, db),
+    close: sqlitePromise.bind(null, db, 'close'),
   };
 }
 module.exports = {
