@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const {
   createPromiseDB,
 } = require('./index.js');
@@ -6,14 +7,16 @@ const {
 } = require('path');
 const fs = require('fs');
 
-const getTablesSQL = `SELECT name from sqlite_master where type="table" and name not like 'sqlite_%';`
+const getTablesSQL = `SELECT name,type from sqlite_master
+where (type="table" or type="view") and name not like 'sqlite_%';`
 async function getTables(db) {
   return (
     await db.query(getTablesSQL)
-  ).map(({ name }) => name);
+  );
 }
-async function getMetaOf(db, tableName) {
-  const sql = `SELECT name, pk as isPK FROM Pragma_table_info('${tableName}')`;
+async function getMetaOf(db, table) {
+  const { name, type } = table;
+  const sql = `SELECT name, pk as isPK FROM Pragma_table_info('${name}')`;
   return (await db.query(sql)).
     reduce(
       (ret, { name, isPK }) => {
@@ -24,13 +27,20 @@ async function getMetaOf(db, tableName) {
         fields.push(name);
         return ret;
       },
-      { fields: [], pks: [], table: tableName }
+      { fields: [], pks: [], name, type }
     )
 }
 
-function createClass({ fields, pks, table }, toDir = "./") {
+function createClass({ fields, pks, name, type }, toDir = "./") {
+  const otherFun = name => `${name}(){throw new Error("View can not be write")}`;
+  let otherMethod = [];
+  if (type == 'view') {
+    otherMethod.push(otherFun('add'));
+    otherMethod.push(otherFun('update'));
+    otherMethod.push(otherFun('remove'));
+  }
   const classContent = `const Table=require('@keepzen/orm-for-sqlite3/Table.js');
-class ${table} extends Table {
+class ${name} extends Table {
   constructor(initValues = {}) {
     super(
       [${fields.map(JSON.stringify).join(',')}],
@@ -38,10 +48,11 @@ class ${table} extends Table {
       initValues
     );
   }
+  ${otherMethod.join("\n  ")}
 }
-module.exports = ${table};
+module.exports = ${name};
 `;
-  fs.writeFileSync(pathJoin(toDir, `${table}.table.js`), classContent);
+  fs.writeFileSync(pathJoin(toDir, `${name}.${type}.js`), classContent);
 }
 async function main(dbPath, sqlScriptPath, toDir = "./") {
   let db = await createPromiseDB(dbPath, sqlScriptPath);
@@ -50,7 +61,7 @@ async function main(dbPath, sqlScriptPath, toDir = "./") {
     let meta = await getMetaOf(db, table);
     createClass(meta, toDir);
   }
-  const files = tables.map(t => `${t}.table.js`);
+  const files = tables.map(t => `${t.name}.${t.type}.js`);
   return `Have create fellow files:\n ${files.join("\n ")}.`;
 }
 if (module == require.main) {
