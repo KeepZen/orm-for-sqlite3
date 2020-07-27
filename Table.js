@@ -9,17 +9,14 @@ function getSQLParams(obj, prefix = "$") {
     {}
   );
 }
+let _db;
 class Table {
-  static #db = null;
   #insertSQL = null;
   #updateSQL = null;
   #deleteSQL = null;
   #primaryKey = null;
   static setDB(db) {
-    this.#db = db;
-  }
-  static getDB() {
-    return this.#db;
+    _db = db;
   }
   constructor(fields = [], pks = [], initValues = {}) {
     for (let key of fields) {
@@ -46,7 +43,7 @@ class Table {
     return Object.seal(this);
   }
   async add() {
-    if (this.getDB()) {
+    if (_db) {
       const ret = await db.execute(this.#insertSQL, getSQLParams(this));
       if (this.#primaryKey.length == 1 && ret.lastID != null) {
         const id = this.#primaryKey[0];
@@ -59,7 +56,7 @@ class Table {
   }
   async update() {
     const sql = this.#updateSQL;
-    const db = this.getDB();
+    const db = _db;
     if (db) {
       return await db.execute(sql, getSQLParams(this));
     } else {
@@ -68,9 +65,8 @@ class Table {
   }
   async remove() {
     const sql = this.#deleteSQL;
-    const db = this.getDB();
-    if (db) {
-      return await db.execute(sql, getSQLParams(this));
+    if (_db) {
+      return await _db.execute(sql, getSQLParams(this));
     } else {
       return sql;
     }
@@ -90,9 +86,8 @@ class Table {
     const sql = `SELECT ${fields.join(",") || "*"} \n` +
       `FROM ${this.name}\n` +
       `${whereCause} ${orderCause}`;
-    const db = this.getDB();
-    if (db) {
-      return await db.query(sql, getSQLParams(this));
+    if (_db) {
+      return await _db.query(sql, getSQLParams(this));
     } else {
       return sql;
     }
