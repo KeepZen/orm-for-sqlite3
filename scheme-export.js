@@ -66,13 +66,12 @@ async function main(dbPath, toDir = "./", sqlScriptPath) {
 }
 if (module == require.main) {
   const [_1, _2, ...others] = process.argv;
-  if (argv.length < 3) {
-    console.log(process.argv0);
+  if (others.length < 1) {
     console.log(`Usage:
     Just export table from db:
-      ${argv[0]} ${argv[1]} db-path [export-class-dir="./"]
+      npx scheme-export db-path [export-class-dir="./"]
     Run sql script and export table scheme:
-    ${argv[0]} ${argv[1]} db-path script-path [export-class-dir]
+      npx scheme-export db-path script-path [export-class-dir]
     `);
     return;
   }
