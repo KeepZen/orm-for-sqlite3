@@ -54,7 +54,7 @@ module.exports = ${name};
 `;
   fs.writeFileSync(pathJoin(toDir, `${name}.${type}.js`), classContent);
 }
-async function main(dbPath, sqlScriptPath, toDir = "./") {
+async function main(dbPath, toDir = "./", sqlScriptPath) {
   let db = await createPromiseDB(dbPath, sqlScriptPath);
   const tables = await getTables(db);
   for (let table of tables) {
@@ -65,7 +65,7 @@ async function main(dbPath, sqlScriptPath, toDir = "./") {
   return `Have create fellow files:\n ${files.join("\n ")}.`;
 }
 if (module == require.main) {
-  const argv = process.argv;
+  const [_1, _2, ...others] = process.argv;
   if (argv.length < 3) {
     console.log(process.argv0);
     console.log(`Usage:
@@ -76,5 +76,5 @@ if (module == require.main) {
     `);
     return;
   }
-  main(argv[2], argv[3]).then(console.log, console.error);
+  main(...others).then(console.log, console.error);
 }
