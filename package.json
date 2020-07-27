@@ -8,13 +8,18 @@
   "bin": {
     "scheme-export": "./scheme-export.js"
   },
+  "scripts": {
+    "test": "npx jest"
+  },
   "private": false,
   "keywords": [
     "ORM",
     "SQLITE3"
   ],
-  "devDependencies": {
-    "jest": "^26.1.0",
+  "dependencies": {
     "sqlite3": "^5.0.0"
+  },
+  "devDependencies": {
+    "jest": "^26.1.0"
   }
 }

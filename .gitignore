@@ -2,3 +2,4 @@ node_modules
 *.table.js
 *.view.js
 *.db
+*.sql

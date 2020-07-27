@@ -26,7 +26,7 @@ class Table {
     const sqlFields = `(${fields.join(",")})`;
     const paramsNames = fields.map(k => `$${k}`);
     const values = `VALUES(${paramsNames.join(", ")})`;
-    this.#insertSQL = `${INSERT} ${this.constructor.name}\n ${sqlFields}\n` +
+    this.#insertSQL = `INSERT INTO ${this.constructor.name}\n ${sqlFields}\n` +
       `${values}`;
 
     const udpateFields = fields.map(k => `${k}=$${k}`);
@@ -44,7 +44,7 @@ class Table {
   }
   async add() {
     if (_db) {
-      const ret = await db.execute(this.#insertSQL, getSQLParams(this));
+      const ret = await _db.execute(this.#insertSQL, getSQLParams(this));
       if (this.#primaryKey.length == 1 && ret.lastID != null) {
         const id = this.#primaryKey[0];
         this[id] = ret.lastID;
