@@ -54,7 +54,24 @@ module.exports = ${name};
 `;
   fs.writeFileSync(pathJoin(toDir, `${name}.${type}.js`), classContent);
 }
-async function main(dbPath, toDir = "./", sqlScriptPath) {
+async function main(...o) {
+  const {
+    dbPath,
+    sqlScriptPath,
+    toDir = "./"
+  } = o.reduce((ret, i) => {
+    switch (true) {
+      case i.endsWith('.sql'):
+        ret.sqlScriptPath = i;
+        break;
+      case i.endsWith(".db"):
+        ret.dbPath = i;
+        break;
+      default:
+        ret.toDir = i;
+    }
+    return ret;
+  }, {})
   let db = await createPromiseDB(dbPath, sqlScriptPath);
   const tables = await getTables(db);
   for (let table of tables) {
@@ -69,9 +86,9 @@ if (module == require.main) {
   if (others.length < 1) {
     console.log(`Usage:
     Just export table from db:
-      npx scheme-export db-path [export-class-dir="./"]
+      npx @keepzen/orm-sqlite3-cli path/name.db [export-class-dir="./"]
     Run sql script and export table scheme:
-      npx scheme-export db-path script-path [export-class-dir]
+      npx @keepzen/orm-sqlite3-cli path/name.db path/script.sql [export-class-dir="./"]
     `);
     return;
   }

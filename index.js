@@ -1,14 +1,19 @@
 const fs = require('fs');
 const sqlite3 = require('sqlite3');
 async function createDB(dbPath, sqlScript) {
-  if (!fs.existsSync(dbPath)) {
-    const db = new sqlite3.Database(dbPath);
-    if (sqlScript != null) {
-      await sqlitePromsieRunScripte(db, sqlScript);
-    }
-    return db;
+  const db = await new Promise((resolve, reject) => {
+    const db = new sqlite3.Database(dbPath, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(db);
+      }
+    });
+  });
+  if (sqlScript != null) {
+    await sqlitePromsieRunScripte(db, sqlScript);
   }
-  return new sqlite3.Database(dbPath);
+  return db;
 }
 async function sqlitePromsieRunScripte(db, scriptPath) {
   const sqls = fs.readFileSync(scriptPath).
@@ -30,7 +35,7 @@ function sqlitePromise(db, methold, ...params) {
   return new Promise((resolve, reject) => {
     db[methold](...params, function (err, result) {
       if (err) {
-        const message = `[SQL:${sql}]\n${err.message}: \n` + err.stack;
+        const message = `[SQL:${sql}]\n${err.message}:\n` + err.stack;
         console.trace(message);
         reject(message);
       } else {

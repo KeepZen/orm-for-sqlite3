@@ -21,3 +21,15 @@ You can use this to operate sqlite tables.
    ```sh
    npx scheme-export db-path/db-name the-dir-you-want-module-to-keep the-sql-script-path
    ```
+4. Use the generate Code
+   ```js
+   const Customer = require('./Customer.table.js');
+   let a = Customer({Name:"Bob"});
+   async ()=>{
+      await a.add();//Insert customer whith Name -- bob
+      a.Name = "Tom";
+      await a.update();//update
+      await a.remove(); //delete
+      await Customer.find({select:["ID","Name"],where:"ID != 0",orderBY:["ID"]});//[Customer] 
+   }
+   ```

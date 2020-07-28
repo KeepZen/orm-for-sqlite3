@@ -1,12 +1,12 @@
 {
   "name": "@keepzen/orm-for-sqlite3",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "ORM for Learn",
   "main": "index.js",
   "author": "Keep in Zen",
   "license": "MIT",
   "bin": {
-    "scheme-export": "./scheme-export.js"
+    "orm-sqlite3-cli": "./cli.js"
   },
   "scripts": {
     "test": "npx jest"
