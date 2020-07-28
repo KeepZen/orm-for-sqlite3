@@ -1,6 +1,6 @@
 {
   "name": "@keepzen/orm-for-sqlite3",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "ORM for Learn",
   "main": "index.js",
   "author": "Keep in Zen",

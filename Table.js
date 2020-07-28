@@ -71,21 +71,21 @@ class Table {
       return sql;
     }
   }
-  static async find({ select = [], where = {}, orderBy = [] } = {}) {
-    let whereCause = '';
-    const entries = Object.entries(where);
-    if (entries.length > 0) {
-      whereCause = `WHERE ` + entries.map(([key, value]) => {
+  static async find({ select = [], where = "", orderBy = [] } = {}) {
+    const whereCause = typeof (where) == "string" ?
+      where :
+      Object.entries(where).map(([key, value]) => {
         return `${key}=${JSON.stringify(value)}`
       }).join(" AND ")
-    }
+
     let orderCause = '';
     if (orderBy.length > 0) {
       orderCause = `ORDER BY ` + orderBy.join(",");
     }
     const sql = `SELECT ${select.join(",") || "*"} \n` +
       `FROM ${this.name}\n` +
-      `${whereCause} ${orderCause}`;
+      `${whereCause == '' ? whereCause : "WHERE " + whereCause}\n` +
+      `${orderCause}`;
     if (_db) {
       return await _db.query(sql, getSQLParams(this));
     } else {
