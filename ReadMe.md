@@ -19,7 +19,7 @@ You can use this to operate sqlite tables.
 2. Create your creat table sql script
 3. Create sqlite db file and Module class.
    ```sh
-   npx scheme-export db-path/db-name the-dir-you-want-module-to-keep the-sql-script-path
+   npx orm-sqlite3-cli db-path/db-name the-dir-you-want-module-to-keep the-sql-script-path
    ```
 4. Use the generate Code
    ```js
