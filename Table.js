@@ -20,8 +20,8 @@ class Table {
   }
   constructor(fields = [], pks = [], initValues = {}) {
     for (let key of fields) {
-      const v = initValues[key] || null;
-      this[key] = v;
+      const value = initValues[key];
+      this[key] = value != undefined ? value : null;
     }
     const sqlFields = `(${fields.join(",")})`;
     const paramsNames = fields.map(k => `$${k}`);

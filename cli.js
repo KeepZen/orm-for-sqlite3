@@ -86,9 +86,9 @@ if (module == require.main) {
   if (others.length < 1) {
     console.log(`Usage:
     Just export table from db:
-      npx @keepzen/orm-sqlite3-cli path/name.db [export-class-dir="./"]
+      npx orm-sqlite3-cli path/name.db [export-class-dir="./"]
     Run sql script and export table scheme:
-      npx @keepzen/orm-sqlite3-cli path/name.db path/script.sql [export-class-dir="./"]
+      npx orm-sqlite3-cli path/name.db path/script.sql [export-class-dir="./"]
     `);
     return;
   }
