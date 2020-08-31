@@ -3,7 +3,9 @@ function getSQLParams(obj, prefix = "$") {
     (ret, key) => {
       const newKey = prefix + key;
       const value = obj[key];
-      ret[newKey] = value;
+      if (value !== null) {
+        ret[newKey] = value;
+      }
       return ret;
     },
     {}
@@ -11,30 +13,17 @@ function getSQLParams(obj, prefix = "$") {
 }
 let _db;
 class Table {
-  #insertSQL = null;
-  #updateSQL = null;
   #deleteSQL = null;
   #primaryKey = null;
+  #fields = null;
   static setDB(db) {
     _db = db;
   }
   constructor(fields = [], pks = [], initValues = {}) {
     for (let key of fields) {
-      const value = initValues[key];
-      this[key] = value != undefined ? value : null;
+      this[key] = initValues[key];
     }
-    const sqlFields = `(${fields.join(",")})`;
-    const paramsNames = fields.map(k => `$${k}`);
-    const values = `VALUES(${paramsNames.join(", ")})`;
-    this.#insertSQL = `INSERT INTO ${this.constructor.name}\n ${sqlFields}\n` +
-      `${values}`;
-
-    const udpateFields = fields.map(k => `${k}=$${k}`);
-    const updateWhere = pks.map(key => `${key}=$${key}`).join(" AND ");
-    this.#updateSQL = `UPDATE ${this.constructor.name}\n ` +
-      `SET ${udpateFields.join(", ")}\n` +
-      `WHERE ${updateWhere}`;
-
+    this.#fields = fields;
     const deleteWhere = fields.map(key => `${key}=$${key}`).join(" AND ")
     this.#deleteSQL = `DELETE FROM ${this.constructor.name}\n` +
       `WHERE ${deleteWhere}`;
@@ -42,20 +31,43 @@ class Table {
     this.#primaryKey = pks;
     return Object.seal(this);
   }
-  async add() {
+  getInsertSql() {
+    const goodFileds = this.#fields.filter(k => this[k]);
+    const sqlFields = `(${goodFileds.join(",")})`;
+    const paramsNames = goodFileds.map(k => `$${k}`);
+    const values = `VALUES(${paramsNames.join(", ")})`;
+    return `INSERT INTO ${this.constructor.name}\n ${sqlFields}\n` +
+      `${values}`;
+  }
+  getUpdateSQL() {
+    const goodFileds = this.#fields.filter(k => this[k]);
+    const udpateFields = goodFileds.map(k => `${k}=$${k}`);
+    const updateWhere = this.#primaryKey.map(key => `${key}=$${key}`).join(" AND ");
+    return `UPDATE ${this.constructor.name}\n ` +
+      `SET ${udpateFields.join(", ")}\n` +
+      `WHERE ${updateWhere}`;
+  }
+  async add(debug = false) {
+    const sql = this.getInsertSQL();
+    if (debug) {
+      console.log(sql);
+    }
     if (_db) {
-      const ret = await _db.execute(this.#insertSQL, getSQLParams(this));
+      const ret = await _db.execute(sql, getSQLParams(this));
       if (this.#primaryKey.length == 1 && ret.lastID != null) {
         const id = this.#primaryKey[0];
         this[id] = ret.lastID;
       }
       return ret;
     } else {
-      return this.#insertSQL;
+      return sql;
     }
   }
-  async update() {
-    const sql = this.#updateSQL;
+  async update(debug = false) {
+    const sql = this.getUpdateSQL();
+    if (debug) {
+      console.log(sql);
+    }
     const db = _db;
     if (db) {
       return await db.execute(sql, getSQLParams(this));
@@ -63,15 +75,21 @@ class Table {
       return sql;
     }
   }
-  async remove() {
+  async remove(debug = false) {
     const sql = this.#deleteSQL;
+    if (debug) {
+      console.log(sql);
+    }
     if (_db) {
       return await _db.execute(sql, getSQLParams(this));
     } else {
       return sql;
     }
   }
-  static async find({ select = [], where = "", orderBy = [] } = {}) {
+  static async find(
+    { select = [], where = "", orderBy = [] } = {},
+    debug = false,
+  ) {
     const whereCause = typeof (where) == "string" ?
       where :
       Object.entries(where).map(([key, value]) => {
@@ -86,6 +104,9 @@ class Table {
       `FROM ${this.name}\n` +
       `${whereCause == '' ? whereCause : "WHERE " + whereCause}\n` +
       `${orderCause}`;
+    if (debug) {
+      console.log('sql:%s', sql);
+    }
     if (_db) {
       return await _db.query(sql, getSQLParams(this));
     } else {
