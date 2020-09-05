@@ -31,7 +31,7 @@ class Table {
     this.#primaryKey = pks;
     return Object.seal(this);
   }
-  getInsertSql() {
+  getInsertSQL() {
     const goodFileds = this.#fields.filter(k => this[k]);
     const sqlFields = `(${goodFileds.join(",")})`;
     const paramsNames = goodFileds.map(k => `$${k}`);
