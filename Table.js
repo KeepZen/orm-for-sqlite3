@@ -40,7 +40,9 @@ class Table {
       `${values}`;
   }
   getUpdateSQL() {
-    const goodFileds = this.#fields.filter(k => this[k]);
+    const goodFileds = this.#fields.filter(k => {
+      return this[k] && !this.#primaryKey.includes(k)
+    });
     const udpateFields = goodFileds.map(k => `${k}=$${k}`);
     const updateWhere = this.#primaryKey.map(key => `${key}=$${key}`).join(" AND ");
     return `UPDATE ${this.constructor.name}\n ` +
