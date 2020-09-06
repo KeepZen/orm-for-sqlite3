@@ -41,7 +41,7 @@ class Table {
   }
   getUpdateSQL() {
     const goodFileds = this.#fields.filter(k => {
-      return this[k] && !this.#primaryKey.includes(k)
+      return this[k] !== undefined && !this.#primaryKey.includes(k)
     });
     const udpateFields = goodFileds.map(k => `${k}=$${k}`);
     const updateWhere = this.#primaryKey.map(key => `${key}=$${key}`).join(" AND ");

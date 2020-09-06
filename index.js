@@ -35,7 +35,7 @@ function sqlitePromise(db, methold, ...params) {
   return new Promise((resolve, reject) => {
     db[methold](...params, function (err, result) {
       if (err) {
-        const message = `[${sql}]\n${err.message}\n`;
+        const message = `[${sql}]\n${JSON.stringify(params, null, 2)}\n${err.message}`;
         //console.trace(message);
         reject({ message, type: "SQLError", stack: err.stack });
       } else {
