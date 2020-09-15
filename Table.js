@@ -32,7 +32,7 @@ class Table {
     return Object.seal(this);
   }
   getInsertSQL() {
-    const goodFileds = this.#fields.filter(k => this[k]);
+    const goodFileds = this.#fields.filter(k => this[k] !== undefined);
     const sqlFields = `(${goodFileds.join(",")})`;
     const paramsNames = goodFileds.map(k => `$${k}`);
     const values = `VALUES(${paramsNames.join(", ")})`;
