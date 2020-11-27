@@ -24,7 +24,7 @@ class Table {
       this[key] = initValues[key];
     }
     this.#fields = fields;
-    const deleteWhere = fields.map(key => `${key}=$${key}`).join(" AND ")
+    const deleteWhere = pks.map(key => `${key}=$${key}`).join(" AND ")
     this.#deleteSQL = `DELETE FROM ${this.constructor.name}\n` +
       `WHERE ${deleteWhere}`;
 
